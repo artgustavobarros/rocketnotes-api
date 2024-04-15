@@ -1,0 +1,65 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int       @id @default(autoincrement())
+  name          String
+  email         String    @unique
+  password_hash String
+  avatar        String?
+  created_at    DateTime  @default(now())
+  updated_at    DateTime? @default(now())
+  Note          Note[]
+  Tag           Tag[]
+
+  @@map("users")
+}
+
+model Note {
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String
+  user        User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime? @default(now())
+  user_id     Int
+  tags        String[]
+  links       String[]
+  Tag         Tag[]
+  Link        Link[]
+
+  @@map("notes")
+}
+
+model Tag {
+  id      Int    @id @default(autoincrement())
+  name    String
+  note    Note   @relation(fields: [note_id], references: [id], onDelete: Cascade)
+  note_id Int
+  User    User?  @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id Int
+
+  @@map("tags")
+}
+
+model Link {
+  id         Int      @id @default(autoincrement())
+  url        String
+  created_at DateTime @default(now())
+  Note       Note?    @relation(fields: [note_id], references: [id], onDelete: Cascade)
+  note_id    Int
+
+  @@map("links")
+}
